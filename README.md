@@ -8,7 +8,8 @@ If number of fingers= 2, it detects Scissors
   
  The projects works on real-time, where it extracts frames from the webcam. The user places his hand in the drawn rectangle.
  The image is blurred using GaussianBlur, and converted to HSV image. Further dilation, erosion etc are carried out. 
- Threshold is defined to detect color of hand, and a mask is created using threshold. Then contours are drawn and convexityDefects is used to count number of fingers showm.
+ Threshold is defined to detect color of hand, and a mask is created using threshold. 
+ Then contours are drawn and convexityDefects is used to count number of fingers shown by maths functions like math.sqrt and math.acos(for calculating the angle)
  Computer randomly displays his move anyone from rock, paper or scissors. The result is shown accordingly and is shown below.
  Computer only generates its move when the user changes his/her move and not with every frame.
  Result 1:-
