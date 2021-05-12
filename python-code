@@ -1,0 +1,147 @@
+import cv2
+import numpy as np
+import math 
+import random
+ 
+capture = cv2.VideoCapture(0)
+
+def predict_winner(move1,move2):
+    if(move1=='ROCK'):
+        if(move2=='SCISSORS'):
+            return "Winner is {}".format("User",f)
+        if(move2=='PAPER'):
+            return "Winner is {}".format("Computer",f)
+    if(move1=='SCISSORS'):
+        if(move2=='ROCK'):
+            return "Winner is {}".format("Computer",f)
+        if(move2=='PAPER'):
+            return "Winner is {}".format("User",f)
+    if(move1=='PAPER'):
+        if(move2=='SCISSORS'):
+            return "Winner is {}".format("Computer",f)
+        if(move2=='ROCK'):
+            return "Winner is {}".format("User",f)
+    if(move1==move2):
+        return 'TIE'
+paper=cv2.imread('paper.png',1)
+PAPER = cv2.resize(paper, (200, 200))
+
+scissor=cv2.imread('sci.png',1)
+SCISSORS = cv2.resize(scissor, (200, 200))
+
+rock=cv2.imread('rock.png',1)
+ROCK = cv2.resize(rock, (200, 200))
+
+computer_move='none'
+alpha = 0.4
+move='none'
+prev_move='none'
+result='none'
+while(capture.isOpened()):
+    ret,frame=capture.read()
+    frame = cv2.flip(frame, 1)
+    cv2.rectangle(frame,(100,100),(300,300),(0,255,0),0)
+    cv2.rectangle(frame, (400, 100), (600, 300), (0, 255, 0), 0)
+    crop_image=frame[100:300,100:300]
+    
+    #Applying Gaussian blur
+    blur=cv2.GaussianBlur(crop_image,(3,3),0)
+    
+    hsv=cv2.cvtColor(blur,cv2.COLOR_BGR2HSV)
+    
+    
+    mask=cv2.inRange(hsv,np.array([2,0,0]),np.array([20,255,255]))
+    kernel=np.ones((5,5))
+    
+    dilation=cv2.dilate(mask,kernel,iterations=1)
+    erosion=cv2.erode(dilation,kernel,iterations=1)
+    
+    filtered=cv2.GaussianBlur(erosion,(3,3),0)
+    ret,thresh=cv2.threshold(filtered,127,255,0)
+    
+    cv2.imshow('Threshold',thresh)
+    contours,_=cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    
+    try:
+        contour=max(contours,key=lambda x:cv2.contourArea(x))
+            
+        x,y,w,h=cv2.boundingRect(contour)
+        cv2.rectangle(crop_image,(x,y),((x+w),(y+h)),(0,0,255),0)
+        
+        hull=cv2.convexHull(contour)
+            
+                
+        drawing=np.zeros(crop_image.shape,np.uint8)
+        cv2.drawContours(drawing,[contour],-1,(0,255,0),0)
+        #cv2.drawContours(frame,[contour],-1,(0,255,0),0)
+        cv2.drawContours(drawing,[hull],-1,(0,0,255),0)
+        
+        hull=cv2.convexHull(contour,returnPoints=False)
+        defects = cv2.convexityDefects(contour,hull)    
+        
+        count_defects=0
+        
+        for i in range(defects.shape[0]):
+            s,e,f,d=defects[i,0]
+            start = tuple(contour[s][0])
+            end = tuple(contour[e][0])
+            far = tuple(contour[f][0])
+            
+            a=math.sqrt((end[0]-start[0])**2+(end[1]-start[1])**2)
+            b=math.sqrt((far[0]-start[0])**2+(far[1]-start[1])**2)
+            c=math.sqrt((end[0]-far[0])**2+(end[1]-far[1])**2)
+            
+            angle=(math.acos((b**2+c**2-a**2)/(2*b*c))*180)/3.14
+    
+            if(angle<=90):
+                count_defects+=1
+                cv2.circle(crop_image,far,1,[0,0,255],-1)
+            cv2.line(crop_image,start,end,[0,255,0],2)
+            
+        
+        if (count_defects == 0):
+            move='ROCK'
+            cv2.putText(frame, str("USER: {}".format('ROCK',f)), (30, 70), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
+        elif (count_defects == 1):
+            move='SCISSORS'
+            cv2.putText(frame, str("USER: {}".format('SCISSORS',f)), (30, 70), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
+        elif (count_defects == 4):
+            move='PAPER'
+            cv2.putText(frame, str("USER: {}".format('PAPER',f)), (30, 70), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
+        else:
+            move='none'
+            pass
+    except:
+        pass
+    if(move!=prev_move):
+        if(move!='none'):
+            computer_move=random.choice(['ROCK','PAPER','SCISSORS'])
+            
+            result=predict_winner(move,computer_move)
+    if(computer_move=='ROCK'):
+        added_image = cv2.addWeighted(frame[100:300,400:600,:],alpha,ROCK,1-alpha,0)
+        frame[100:300,400:600] = added_image
+    elif (computer_move=='SCISSORS'):
+        added_image = cv2.addWeighted(frame[100:300,400:600,:],alpha,SCISSORS,1-alpha,0)
+        frame[100:300,400:600] = added_image
+    elif (computer_move=='PAPER'):
+        added_image = cv2.addWeighted(frame[100:300,400:600,:],alpha,PAPER,1-alpha,0)
+        frame[100:300,400:600] = added_image
+    
+    cv2.putText(frame, str('COMPUTER: {}'.format(computer_move,f)) , (310, 70), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
+    result=predict_winner(move,computer_move)
+    cv2.putText(frame, str(result) , (40, 400), cv2.FONT_HERSHEY_COMPLEX_SMALL, 2, (0, 0, 255), 2)
+    prev_move=move
+    #
+    all_image=np.hstack((drawing,crop_image))
+    cv2.imshow('Draw',all_image)
+    cv2.imshow('Frame',frame)
+    cv2.imshow('Mask',mask)
+    cv2.imshow('crop',crop_image)
+    k=cv2.waitKey(1)
+    if(k==27):
+        break
+
+cv2.destroyAllWindows()
+
+    
