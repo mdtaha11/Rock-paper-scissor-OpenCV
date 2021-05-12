@@ -12,10 +12,10 @@ If number of fingers= 2, it detects Scissors
  Computer randomly displays his move anyone from rock, paper or scissors. The result is shown accordingly and is shown below.
  Computer only generates its move when the user changes his/her move and not with every frame.
  Result 1:-
- ![alt text](https://github.com/mdtaha11/main/blob/[branch]/rock.png?raw=true)
+ ![alt text](https://github.com/mdtaha11/Rock-paper-scissor-OpenCV/blob/main/rock.png?raw=true)
  
  Result 2:-
- ![alt text](https://github.com/mdtaha11/main/blob/[branch]/Paper.png?raw=true)
+ ![alt text](https://github.com/mdtaha11/Rock-paper-scissor-OpenCV/blob/main/Paper.png?raw=true)
  
  Result3 :-
- ![alt text](https://github.com/mdtaha11/main/blob/[branch]/Scissors.png?raw=true)
+ ![alt text](https://github.com/mdtaha11/Rock-paper-scissor-OpenCV/blob/main/Scissors.png?raw=true)
