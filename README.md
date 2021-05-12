@@ -19,4 +19,4 @@ If number of fingers= 2, it detects Scissors
  ![alt text](https://github.com/mdtaha11/Rock-paper-scissor-OpenCV/blob/main/Paper.png?raw=true)
  
  Result3 :-
- ![alt text](https://github.com/mdtaha11/Rock-paper-scissor-OpenCV/blob/main/Scissors.png?raw=true)
+ ![alt text](https://github.com/mdtaha11/Rock-paper-scissor-OpenCV/blob/main/scissors.png?raw=true)
